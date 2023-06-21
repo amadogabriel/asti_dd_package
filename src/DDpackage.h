@@ -47,6 +47,13 @@ namespace dd_package {
         DDedge e[MAXNEDGE];     // edges out of this node
     };
 
+    
+    struct Task {
+        DDedge x, y;
+        int var;
+        int i, j, k;
+    };
+
 // list definitions for breadth first traversals (e.g. printing)  
     typedef struct ListElement *ListElementPtr;
 

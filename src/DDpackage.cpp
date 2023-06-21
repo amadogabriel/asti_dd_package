@@ -1294,7 +1294,7 @@ namespace dd_package {
         }
 
         DDedge e1, e2, e[MAXNEDGE];
-        #pragma omp parallel for
+        
         for (int i = 0; i < Nedge; i++) {
             if (!DDterminal(x) && x.p->v == w) {
                 e1 = x.p->e[i];
@@ -1373,6 +1373,15 @@ namespace dd_package {
         return result;
     }
 
+    DDedge combine(const std::vector<DDedge>& results) {
+        DDedge combined = DDzero;  // Assuming DDzero is your initial value
+        for (const auto& result : results) {
+            combined = DDadd2(combined, result); // Assuming DDadd2 is your addition operation
+        }
+        return combined;
+    }
+
+
     // new multiply routine designed to handle missing variables properly
     // var is number of variables
     DDedge DDmultiply2(DDedge x, DDedge y, const int var) {
@@ -1445,13 +1454,15 @@ namespace dd_package {
         }
 
         DDedge e[MAXNEDGE];
-        #pragma omp parallel for
+
+        //#pragma omp parallel for
         for (int i = 0; i < Nedge; i += Radix) {
-            #pragma omp parallel for
+           
             for (int j = 0; j < Radix; j++) {
                 e[i + j] = DDzero;
-                #pragma omp parallel for
+                #pragma omp parallel for schedule(dynamic) 
                 for (int k = 0; k < Radix; k++) {
+
                     DDedge e1, e2;
                     if (!DDterminal(x) && x.p->v == w) {
                         e1 = x.p->e[i + k];
@@ -1463,7 +1474,8 @@ namespace dd_package {
                     } else {
                         e2 = y;
                     }
-                    std::cout << "Multiplying via thread #" << omp_get_thread_num() << std::endl;
+
+                    
                     DDedge m = DDmultiply2(e1, e2, var - 1);
 
                     if (k == 0 || e[i + j].w == COMPLEX_ZERO) {
@@ -1481,15 +1493,17 @@ namespace dd_package {
                 }
             }
         }
-
+       
         r = DDmakeNonterminal(w, e, true);
-
+        
+        #pragma omp taskwait
         CTinsert(x, y, r, mult);
         if (r.w != COMPLEX_ZERO) {
             Cmul(r.w, r.w, xweight);
             Cmul(r.w, r.w, yweight);
 
         }
+        
         return r;
     }
 
