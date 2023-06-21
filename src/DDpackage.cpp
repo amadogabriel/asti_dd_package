@@ -1294,6 +1294,7 @@ namespace dd_package {
         }
 
         DDedge e1, e2, e[MAXNEDGE];
+        #pragma omp parallel for
         for (int i = 0; i < Nedge; i++) {
             if (!DDterminal(x) && x.p->v == w) {
                 e1 = x.p->e[i];
@@ -1446,8 +1447,10 @@ namespace dd_package {
         DDedge e[MAXNEDGE];
         #pragma omp parallel for
         for (int i = 0; i < Nedge; i += Radix) {
+            #pragma omp parallel for
             for (int j = 0; j < Radix; j++) {
                 e[i + j] = DDzero;
+                #pragma omp parallel for
                 for (int k = 0; k < Radix; k++) {
                     DDedge e1, e2;
                     if (!DDterminal(x) && x.p->v == w) {
@@ -1460,7 +1463,7 @@ namespace dd_package {
                     } else {
                         e2 = y;
                     }
-                    std::cout << "Hello, World! from thread " << omp_get_thread_num() << std::endl;
+                    std::cout << "Multiplying via thread #" << omp_get_thread_num() << std::endl;
                     DDedge m = DDmultiply2(e1, e2, var - 1);
 
                     if (k == 0 || e[i + j].w == COMPLEX_ZERO) {
