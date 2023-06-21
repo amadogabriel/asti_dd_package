@@ -1,13 +1,12 @@
 # A Parallelized Implementation of Decision Diagrams Written in C++
 
 With code from the QMDD implementation provided by Michael Miller (University of Victoria, Canada)
-and Philipp Niemann (University of Bremen, Germany), and TUM's MQT.
+and Philipp Niemann (University of Bremen, Germany), and Technical University of Munich's Munich Quantum Toolkit (dd_package).
 
 ## Usage
 
 ### System Requirements
 
-The package has been tested under Linux (Ubuntu 18.04, 64-bit) and should be compatible with any current version of g++/cmake.
   
 ### Build and Run 
 
@@ -42,4 +41,8 @@ DD statistics:
     Matches:    20
 ```
 
+###Building on Windows
+$ mkdir build && cd build
+$ cmake .. -G "Visual Studio 15 2017" -A x64 -DCMAKE_BUILD_TYPE=Release
+$ cmake --build . --config Release
 #
