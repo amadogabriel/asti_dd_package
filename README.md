@@ -6,7 +6,9 @@ and Philipp Niemann (University of Bremen, Germany), and Technical University of
 ## Usage
 
 ### System Requirements
-
+1. g++/clang compiler.
+2. openmp (openmp is included in g++, you might need to install it separately when using a different compiler.
+3. graphviz (optional, for illustrating qmdd's)
   
 ### Build and Run 
 
@@ -41,7 +43,7 @@ DD statistics:
     Matches:    20
 ```
 
-###Building on Windows
+### Building on Windows
 $ mkdir build && cd build
 $ cmake .. -G "Visual Studio 15 2017" -A x64 -DCMAKE_BUILD_TYPE=Release
 $ cmake --build . --config Release
