@@ -1,4 +1,4 @@
-# A Parallelized Implementation of Decision Diagrams Written in C++
+# A Parallelized Implementation of a Quantum Multi-Valued Decision Diagram(QMDD) Package Written in C++
 
 With code from the QMDD implementation provided by Michael Miller (University of Victoria, Canada)
 and Philipp Niemann (University of Bremen, Germany), and Technical University of Munich's Munich Quantum Toolkit (dd_package).
