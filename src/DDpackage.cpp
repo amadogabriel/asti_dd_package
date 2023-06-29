@@ -12,6 +12,7 @@
 #include <fstream>
 #include <cstring>
 #include <cmath>
+#include <vector>
 
 namespace dd_package {
     constexpr unsigned int NODECOUNT_BUCKETS = 2000000;
