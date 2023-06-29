@@ -13,6 +13,7 @@
 #include <cstring>
 #include <cmath>
 #include <vector>
+#include <array>
 
 namespace dd_package {
     constexpr unsigned int NODECOUNT_BUCKETS = 2000000;
@@ -26,12 +27,15 @@ namespace dd_package {
     // phase shift S
     const DD_matrix Sm = {{complex_one,  complex_zero},
                           {complex_zero, {0, 1}}};
-    // Hadamard
+    // Hadamardss
     const DD_matrix Hm = {{{sqrt_2, 0}, {sqrt_2,  0}},
                           {{sqrt_2, 0}, {-sqrt_2, 0}}};
     // phase shift Z = S*S
     const DD_matrix Zm = {{complex_one,  complex_zero},
                           {complex_zero, {-1, 0}}};
+
+    const DD_matrix SWAPm = {{complex_one,  complex_zero},
+                          {complex_zero, complex_one}};
 
     const int Radix = MAXRADIX;                 // radix (default is 2)
     const int Nedge = MAXNEDGE;                 // no. of edges (default is 4)
@@ -232,11 +236,12 @@ namespace dd_package {
         unsigned long long element = 2 << DDinverseOrder[e.p->v];
         for (unsigned long long i = 0; i < element; i++) {
             complex_value amplitude = GetElementOfVector(e, i);
-            for (int j = DDinverseOrder[e.p->v]; j >= 0; j--) {
-                std::cout << ((i >> j) & 1u);
+            if (amplitude.i != 0 || amplitude.r != 0){
+                for (int j = DDinverseOrder[e.p->v]; j >= 0; j--) {
+                    std::cout << ((i >> j) & 1u);
+                }
+                std::cout << ": " << amplitude << "\n";
             }
-            std::cout << ": " << amplitude << "\n";
-
         }
         std::cout << std::flush;
     }

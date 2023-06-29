@@ -8,11 +8,24 @@
     #define M_PI_4 M_PI/4
 #endif
 #include <vector>
+#include <chrono>
 
 namespace dd = dd_package;
 
-dd::DDedge Swap(){
-    int line[3];
+
+//QFT circuit constructor for 3 qubits
+dd::DDedge QFT3() {
+    dd::DD_matrix CTm;
+    double m_pi_4 = M_PI_4;
+
+    
+    // Define the Controlled-T gate matrix
+    CTm[0][0] = dd::Cmake(1, 0);
+    CTm[0][1] = dd::Cmake(0, 0);
+    CTm[1][0] = dd::Cmake(0, 0);
+    CTm[1][1] = dd::Cmake(std::cos(m_pi_4), std::sin(m_pi_4)); // e^(i*pi/4)
+
+    // Define the SWAP gate matrix
     dd::DD_matrix SWAPm;
     SWAPm[0][0] = dd::Cmake(1, 0);
     SWAPm[0][1] = dd::Cmake(0, 0);
@@ -30,24 +43,6 @@ dd::DDedge Swap(){
     SWAPm[3][1] = dd::Cmake(0, 0);
     SWAPm[3][2] = dd::Cmake(0, 0);
     SWAPm[3][3] = dd::Cmake(1, 0);
-    line[0] = 2; line[1] = -1; line[2] = 1;
-    dd::DDedge swap_gate_q0_q2 = DDmvlgate(SWAPm, 3, line);
-    return swap_gate_q0_q2;
-}
-//QFT circuit constructor for 3 qubits
-dd::DDedge QFT3() {
-    dd::DD_matrix CTm;
-    double m_pi_4 = M_PI_4;
-
-    
-    // Define the Controlled-T gate matrix
-    CTm[0][0] = dd::Cmake(1, 0);
-    CTm[0][1] = dd::Cmake(0, 0);
-    CTm[1][0] = dd::Cmake(0, 0);
-    CTm[1][1] = dd::Cmake(std::cos(m_pi_4), std::sin(m_pi_4)); // e^(i*pi/4)
-
-    // Define the SWAP gate matrix
-
 
     int line[3];
 
@@ -76,8 +71,9 @@ dd::DDedge QFT3() {
     dd::DDedge h_gate_q2 = DDmvlgate(dd::Hm, 3, line);
 
     // Swap q0 and q2
+    line[0] = 2; line[1] = -1; line[2] = 1;
+    dd::DDedge swap_gate_q0_q2 = DDmvlgate(SWAPm, 3, line);
 
-    dd::DDedge swap_gate_q0_q2 = Swap();
     //Multiply gates to get 3-qubit QFT
     dd::DDedge qft3 = dd::DDmultiply(h_gate_q0, cs_gate_q1_q0);
     qft3 = dd::DDmultiply(qft3, h_gate_q1);
@@ -189,7 +185,31 @@ dd::DDedge BellCircuit10() {
     return total_gate;
 }
 
+dd::DDedge BellCircuit100() {
+    int num_qubits = 100;
+    dd::DDedge total_gate = dd::DDone;
 
+    // Define Hadamard gate acting on first qubit
+    std::vector<int> line(num_qubits, -1);
+    line[0] = 2;
+    dd::DDedge h_gate = DDmvlgate(dd::Hm, num_qubits, line.data());
+
+    // Initialize total_gate with the Hadamard gate
+    total_gate = h_gate;
+
+    // Define CNOT gate with control first qubit and target each of the rest qubits
+    for (int i = 1; i < num_qubits; ++i) {
+        std::fill(line.begin(), line.end(), -1);
+        line[0] = 1;
+        line[i] = 2;
+        dd::DDedge cx_gate = DDmvlgate(dd::Nm, num_qubits, line.data());
+
+        // Multiply gates to get the total functionality of the circuit
+        total_gate = dd::DDmultiply(cx_gate, total_gate);
+    }
+
+    return total_gate;
+}
 
 int main() {
 
@@ -226,14 +246,28 @@ int main() {
     std::cout<<"\n\nBell state: \n\n";
     dd::DDprintVector(bell_state);
 
+    std::chrono::steady_clock::time_point begin;
+    begin = std::chrono::steady_clock::now();
     dd::DDedge zero_state30 = dd::DDzeroState(10);
     dd::DDedge bell_circuit30 = BellCircuit10();
     dd::DDedge bell_state30 = dd::DDmultiply(bell_circuit30, zero_state30);
-    std::cout<<"\n\nGHZ cirtcuit (10qbts): \n\n";
+    std::chrono::steady_clock::time_point end; 
+    end = std::chrono::steady_clock::now();
+    std::cout<<"\n\nGHZ cirtcuit (10qbts): \n\n";   
     dd::DDprintVector(bell_state30);
+    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "microseconds" << std::endl;
 
-    // std::cout << "Bell states have a fidelity of " << dd::DDfidelity(bell_state, bell_state2) << "\n";
-    // std::cout << "Bell state and zero state have a fidelity of " << dd::DDfidelity(bell_state, zero_state) << "\n";
+
+    begin = std::chrono::steady_clock::now();
+    dd::DDedge zero_state100 = dd::DDzeroState(100);
+    dd::DDedge bell_circuit100 = BellCircuit100();
+    dd::DDedge bell_state100 = dd::DDmultiply(bell_circuit100, zero_state100);
+    
+    std::cout<<"\n\nGHZ cirtcuit (100qbts): \n\n";   
+    dd::DDprintVector(bell_state30);
+    end = std::chrono::steady_clock::now();
+    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "microseconds  " << std::endl;
+
 
 
     dd::DDedge zero_state_3 = dd::DDzeroState(3);

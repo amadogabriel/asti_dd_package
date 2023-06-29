@@ -48,11 +48,6 @@ namespace dd_package {
     };
 
     
-    struct Task {
-        DDedge x, y;
-        int var;
-        int i, j, k;
-    };
 
 // list definitions for breadth first traversals (e.g. printing)  
     typedef struct ListElement *ListElementPtr;
