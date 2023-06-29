@@ -7,6 +7,7 @@
     #define M_PI 3.14159265358979323846
     #define M_PI_4 M_PI/4
 #endif
+#include <vector>
 
 namespace dd = dd_package;
 
@@ -124,6 +125,34 @@ dd::DDedge BellCicuit2() {
     return dd::DDmultiply(dd::DDmultiply(h_gate_q1, h_gate_q0), dd::DDmultiply(cx_gate, h_gate_q1));
 }
 
+dd::DDedge BellCircuit10() {
+    int num_qubits = 10;
+    dd::DDedge total_gate = dd::DDone;
+
+    // Define Hadamard gate acting on first qubit
+    std::vector<int> line(num_qubits, -1);
+    line[0] = 2;
+    dd::DDedge h_gate = DDmvlgate(dd::Hm, num_qubits, line.data());
+
+    // Initialize total_gate with the Hadamard gate
+    total_gate = h_gate;
+
+    // Define CNOT gate with control first qubit and target each of the rest qubits
+    for (int i = 1; i < num_qubits; ++i) {
+        std::fill(line.begin(), line.end(), -1);
+        line[0] = 1;
+        line[i] = 2;
+        dd::DDedge cx_gate = DDmvlgate(dd::Nm, num_qubits, line.data());
+
+        // Multiply gates to get the total functionality of the circuit
+        total_gate = dd::DDmultiply(cx_gate, total_gate);
+    }
+
+    return total_gate;
+}
+
+
+
 int main() {
 
     
@@ -156,7 +185,14 @@ int main() {
     dd::DDdotExportVector(bell_state, "bell_state.dot");
 
     //print result
+    std::cout<<"\n\nBell state: \n\n";
     dd::DDprintVector(bell_state);
+
+    dd::DDedge zero_state30 = dd::DDzeroState(10);
+    dd::DDedge bell_circuit30 = BellCircuit10();
+    dd::DDedge bell_state30 = dd::DDmultiply(bell_circuit30, zero_state30);
+    std::cout<<"\n\nGHZ cirtcuit (10qbts): \n\n";
+    dd::DDprintVector(bell_state30);
 
     // std::cout << "Bell states have a fidelity of " << dd::DDfidelity(bell_state, bell_state2) << "\n";
     // std::cout << "Bell state and zero state have a fidelity of " << dd::DDfidelity(bell_state, zero_state) << "\n";
@@ -164,6 +200,7 @@ int main() {
     dd::DDedge zero_state_3 = dd::DDzeroState(3);
     dd::DDedge QFT = QFT3();
     dd::DDedge QFT_zero_state = dd::DDmultiply(QFT, zero_state_3);
+    std::cout <<"\n3-qubit Quantum Fourier Transform\n\n";
     dd::DDprintVector(QFT_zero_state);
 
     /***** Custom gates *****/

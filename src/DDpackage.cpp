@@ -1456,11 +1456,13 @@ namespace dd_package {
         DDedge e[MAXNEDGE];
 
         //#pragma omp parallel for
+        
         for (int i = 0; i < Nedge; i += Radix) {
            
             for (int j = 0; j < Radix; j++) {
                 e[i + j] = DDzero;
-                #pragma omp parallel for schedule(dynamic) 
+                // #pragma omp parallel for schedule(dynamic) 
+                #pragma omp parallel for
                 for (int k = 0; k < Radix; k++) {
 
                     DDedge e1, e2;
@@ -1496,14 +1498,14 @@ namespace dd_package {
        
         r = DDmakeNonterminal(w, e, true);
         
-        #pragma omp taskwait
+        
         CTinsert(x, y, r, mult);
         if (r.w != COMPLEX_ZERO) {
             Cmul(r.w, r.w, xweight);
             Cmul(r.w, r.w, yweight);
 
         }
-        
+        // #pragma omp taskwait
         return r;
     }
 
