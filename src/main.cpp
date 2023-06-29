@@ -11,20 +11,8 @@
 
 namespace dd = dd_package;
 
-
-//QFT circuit constructor for 3 qubits
-dd::DDedge QFT3() {
-    dd::DD_matrix CTm;
-    double m_pi_4 = M_PI_4;
-
-    
-    // Define the Controlled-T gate matrix
-    CTm[0][0] = dd::Cmake(1, 0);
-    CTm[0][1] = dd::Cmake(0, 0);
-    CTm[1][0] = dd::Cmake(0, 0);
-    CTm[1][1] = dd::Cmake(std::cos(m_pi_4), std::sin(m_pi_4)); // e^(i*pi/4)
-
-    // Define the SWAP gate matrix
+dd::DDedge Swap(){
+    int line[3];
     dd::DD_matrix SWAPm;
     SWAPm[0][0] = dd::Cmake(1, 0);
     SWAPm[0][1] = dd::Cmake(0, 0);
@@ -42,6 +30,24 @@ dd::DDedge QFT3() {
     SWAPm[3][1] = dd::Cmake(0, 0);
     SWAPm[3][2] = dd::Cmake(0, 0);
     SWAPm[3][3] = dd::Cmake(1, 0);
+    line[0] = 2; line[1] = -1; line[2] = 1;
+    dd::DDedge swap_gate_q0_q2 = DDmvlgate(SWAPm, 3, line);
+    return swap_gate_q0_q2;
+}
+//QFT circuit constructor for 3 qubits
+dd::DDedge QFT3() {
+    dd::DD_matrix CTm;
+    double m_pi_4 = M_PI_4;
+
+    
+    // Define the Controlled-T gate matrix
+    CTm[0][0] = dd::Cmake(1, 0);
+    CTm[0][1] = dd::Cmake(0, 0);
+    CTm[1][0] = dd::Cmake(0, 0);
+    CTm[1][1] = dd::Cmake(std::cos(m_pi_4), std::sin(m_pi_4)); // e^(i*pi/4)
+
+    // Define the SWAP gate matrix
+
 
     int line[3];
 
@@ -70,9 +76,8 @@ dd::DDedge QFT3() {
     dd::DDedge h_gate_q2 = DDmvlgate(dd::Hm, 3, line);
 
     // Swap q0 and q2
-    line[0] = 2; line[1] = -1; line[2] = 1;
-    dd::DDedge swap_gate_q0_q2 = DDmvlgate(SWAPm, 3, line);
 
+    dd::DDedge swap_gate_q0_q2 = Swap();
     //Multiply gates to get 3-qubit QFT
     dd::DDedge qft3 = dd::DDmultiply(h_gate_q0, cs_gate_q1_q0);
     qft3 = dd::DDmultiply(qft3, h_gate_q1);
@@ -84,6 +89,39 @@ dd::DDedge QFT3() {
     return qft3;
 }
 
+dd::DDedge GroverCircuit() {
+    // Define the number of qubits
+    const int numQubits = 3;
+
+    // Define the Grover iteration count
+    const int iterations = 1; // Modify this value for more iterations
+
+    // Create the Hadamard gate
+    int hLine[2] = {0, -1};
+    dd::DDedge hGate = dd::DDmvlgate(dd::Hm, numQubits, hLine);
+
+    // Create the Oracle gate (U_f)
+    int uFLine[2] = {0, 1};
+    dd::DDedge uFGate = dd::DDmvlgate(dd::Nm, numQubits, uFLine);
+
+    // Create the Diffusion operator (U_s)
+    int uSLine[2] = {0, -1};
+    dd::DDedge uSGate = dd::DDmvlgate(dd::Nm, numQubits, uSLine);
+    uSLine[0] = -1;
+    uSLine[1] = 0;
+    dd::DDedge uSControlGate = dd::DDmvlgate(dd::Nm, numQubits, uSLine);
+    dd::DDedge uSControlHGate = dd::DDmultiply(hGate, uSControlGate);
+    dd::DDedge uS = dd::DDmultiply(uSControlHGate, uSGate);
+
+    // Construct the Grover's algorithm circuit
+    dd::DDedge circuit = hGate;
+    for (int i = 0; i < iterations; i++) {
+        circuit = dd::DDmultiply(uFGate, circuit);
+        circuit = dd::DDmultiply(uS, circuit);
+    }
+
+    return circuit;
+}
 
 dd::DDedge BellCicuit1() {
     /***** define Hadamard gate acting on q0 *****/
@@ -196,6 +234,7 @@ int main() {
 
     // std::cout << "Bell states have a fidelity of " << dd::DDfidelity(bell_state, bell_state2) << "\n";
     // std::cout << "Bell state and zero state have a fidelity of " << dd::DDfidelity(bell_state, zero_state) << "\n";
+
 
     dd::DDedge zero_state_3 = dd::DDzeroState(3);
     dd::DDedge QFT = QFT3();
