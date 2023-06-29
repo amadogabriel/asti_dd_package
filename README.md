@@ -17,6 +17,7 @@ The project entitled “Establishment of Quantum Innovation Laboratory: Optimizi
 
 To build the package and run a small demo type:
 ```
+$ git clone git clone --recurse-submodules --remote-submodules https://github.com/amadogabriel/asti_dd_package 
 $ mkdir build
 $ cd build 
 $ cmake ..
