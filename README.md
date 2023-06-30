@@ -1,4 +1,4 @@
-#![qil-logo](https://github.com/amadogabriel/asti_dd_package/assets/75212399/05314653-5441-4701-bee3-2504aa454e23)
+#![qil-logo](https://github.com/amadogabriel/asti_dd_package/assets/75212399/05314653-5441-4701-bee3-2504aa454e23| width=100)
  A Parallelized Implementation of a Quantum Multi-Valued Decision Diagram(QMDD) Package Written in C++
 
 With code from the QMDD implementation provided by Michael Miller (University of Victoria, Canada)
