@@ -13,7 +13,7 @@ The project entitled “Establishment of Quantum Innovation Laboratory: Optimizi
 2. openmp (openmp is included in g++, you might need to install it separately when using a different compiler.
 3. graphviz (optional, for illustrating qmdd's)
 
-###Windows users can run the executable file dd_example.exe to view a test run of 4 quantum circuits.
+### Windows users can run the executable file dd_example.exe to view a test run of 4 quantum circuits.
   
 ### Build and Run 
 
