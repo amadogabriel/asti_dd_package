@@ -1,8 +1,10 @@
-#![qil-logo](https://github.com/amadogabriel/asti_dd_package/assets/75212399/05314653-5441-4701-bee3-2504aa454e23| width=100)
- A Parallelized Implementation of a Quantum Multi-Valued Decision Diagram(QMDD) Package Written in C++
+
+# A Parallelized Implementation of a Quantum Multi-Valued Decision Diagram(QMDD) Package Written in C++
 
 With code from the QMDD implementation provided by Michael Miller (University of Victoria, Canada)
 and Philipp Niemann (University of Bremen, Germany), and Technical University of Munich's Munich Quantum Toolkit (dd_package).
+
+<img src="https://github.com/amadogabriel/asti_dd_package/assets/75212399/05314653-5441-4701-bee3-2504aa454e23"  width="400" height="400" />
 
 ## Quantum Innovation Laboratory
 The project entitled “Establishment of Quantum Innovation Laboratory: Optimizing a Decision Diagram-based Free and Open-Source Quantum Circuit Simulator for Benchmarking in an HPC Environment using Entanglement, Random Circuits, and Quantum Algorithms Benchmark Datasets”, or QCS Project, is an initiative for quantum computing research in DOST-ASTI that will serve as the foundation for the succeeding project proposals of the institution in this domain. The project will focus on the optimization of available quantum circuit simulators for execution in DOST-ASTI’s COARE HPC facility. Outputs of the project will allow local researchers to execute few-qubit simulation of quantum algorithms for algorithm verification in COARE. Also, knowledge-sharing activities will be conducted to teach/train potential researchers in the domain on how to use the simulators in COARE for their own quantum computing research.
