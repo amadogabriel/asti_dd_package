@@ -85,6 +85,66 @@ dd::DDedge QFT3() {
     return qft3;
 }
 
+dd::DDedge QFT10() {
+    int num_qubits = 10;
+    int line[10];
+    dd::DD_matrix CTm;
+    dd::DD_matrix SWAPm;
+
+    // Initialize SWAP gate
+    SWAPm[0][0] = dd::Cmake(1, 0);
+    SWAPm[1][1] = dd::Cmake(1, 0);
+    SWAPm[2][2] = dd::Cmake(0, 0);
+    SWAPm[3][3] = dd::Cmake(0, 0);
+    SWAPm[0][2] = dd::Cmake(0, 0);
+    SWAPm[2][0] = dd::Cmake(1, 0);
+    SWAPm[1][3] = dd::Cmake(1, 0);
+    SWAPm[3][1] = dd::Cmake(0, 0);
+
+    // Initialize empty edge
+    dd::DDedge qft;
+
+    for (int i = 0; i < num_qubits; ++i) {
+        // Reset the line array
+        std::fill(line, line + num_qubits, -1);
+
+        // Apply Hadamard gate to the i-th qubit
+        line[i] = 2;
+        dd::DDedge h_gate = DDmvlgate(dd::Hm, num_qubits, line);
+        qft = dd::DDmultiply(qft, h_gate);
+
+        // Apply controlled gates
+        for (int j = i+1; j < num_qubits; ++j) {
+            double angle = M_PI / pow(2, j - i);
+            // Define the Controlled-T gate matrix
+            CTm[0][0] = dd::Cmake(1, 0);
+            CTm[0][1] = dd::Cmake(0, 0);
+            CTm[1][0] = dd::Cmake(0, 0);
+            CTm[1][1] = dd::Cmake(std::cos(angle), std::sin(angle)); // e^(i*angle)
+
+            // Reset the line array
+            std::fill(line, line + num_qubits, -1);
+
+            line[i] = 1; line[j] = 2;
+            dd::DDedge ct_gate = DDmvlgate(CTm, num_qubits, line);
+            qft = dd::DDmultiply(qft, ct_gate);
+        }
+    }
+
+    // Apply SWAP gates
+    for (int i = 0; i < num_qubits / 2; ++i) {
+        // Reset the line array
+        std::fill(line, line + num_qubits, -1);
+
+        line[i] = 2; line[num_qubits - i - 1] = 1;
+        dd::DDedge swap_gate = DDmvlgate(SWAPm, num_qubits, line);
+        qft = dd::DDmultiply(qft, swap_gate);
+    }
+
+    return qft;
+}
+
+
 dd::DDedge GroverCircuit() {
     // Define the number of qubits
     const int numQubits = 3;
@@ -229,33 +289,35 @@ int main() {
     // } else {
     //     std::cout << "Circuits are not equal!" << std::endl;
     // }
-
+    std::chrono::steady_clock::time_point begin;
+    std::chrono::steady_clock::time_point end; 
 
     /***** Simulation *****/
     //Generate vector in basis state |00>
+    begin = std::chrono::steady_clock::now();
     dd::DDedge zero_state = dd::DDzeroState(2);
 
     //Simulate the bell_circuit with initial state |00>
     dd::DDedge bell_state = dd::DDmultiply(bell_circuit1, zero_state);
     dd::DDedge bell_state2 = dd::DDmultiply(bell_circuit2, zero_state);
-
+    end = std::chrono::steady_clock::now();
 
     dd::DDdotExportVector(bell_state, "bell_state.dot");
 
     //print result
     std::cout<<"\n\nBell state: \n\n";
     dd::DDprintVector(bell_state);
-
-    std::chrono::steady_clock::time_point begin;
+    std::cout << "Running time = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "microseconds" << std::endl;
+    
     begin = std::chrono::steady_clock::now();
     dd::DDedge zero_state30 = dd::DDzeroState(10);
     dd::DDedge bell_circuit30 = BellCircuit10();
     dd::DDedge bell_state30 = dd::DDmultiply(bell_circuit30, zero_state30);
-    std::chrono::steady_clock::time_point end; 
+ 
     end = std::chrono::steady_clock::now();
     std::cout<<"\n\nGHZ cirtcuit (10qbts): \n\n";   
     dd::DDprintVector(bell_state30);
-    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "microseconds" << std::endl;
+    std::cout << "Running time = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "microseconds" << std::endl;
 
 
     begin = std::chrono::steady_clock::now();
@@ -266,16 +328,28 @@ int main() {
     std::cout<<"\n\nGHZ cirtcuit (100qbts): \n\n";   
     dd::DDprintVector(bell_state30);
     end = std::chrono::steady_clock::now();
-    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "microseconds  " << std::endl;
+    std::cout << "Running time = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "microseconds  " << std::endl;
 
 
-
+    begin = std::chrono::steady_clock::now();
     dd::DDedge zero_state_3 = dd::DDzeroState(3);
     dd::DDedge QFT = QFT3();
     dd::DDedge QFT_zero_state = dd::DDmultiply(QFT, zero_state_3);
-    std::cout <<"\n3-qubit Quantum Fourier Transform\n\n";
-    dd::DDprintVector(QFT_zero_state);
+    std::cout <<"\n\n3-qubit Quantum Fourier Transform\n\n";
+    dd::DDprintVector(QFT_zero_state);end = std::chrono::steady_clock::now();
+    std::cout << "Running time = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "microseconds  " << std::endl;
 
+    begin = std::chrono::steady_clock::now();
+    dd::DDedge zero_state_10 = dd::DDzeroState(10);
+    dd::DDedge QFT10_circuit = QFT10();
+    dd::DDedge QFT_zero_state10 = dd::DDmultiply(QFT10_circuit, zero_state_10);
+    std::cout <<"\n\n10-qubit Quantum Fourier Transform\n\n";
+    dd::DDprintVector(QFT_zero_state10);end = std::chrono::steady_clock::now();
+    std::cout << "Running time = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "microseconds  " << std::endl;
+
+
+    std::cout <<"\n\nPress enter to exit\n\n";
+    std::cin.get();
     /***** Custom gates *****/
     // dd::DD_matrix m;
     // m[0][0] = dd::Cmake(std::sqrt(1 / 2.0L), 0);
