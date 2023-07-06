@@ -27,31 +27,9 @@ $ mkdir build
 $ cd build 
 $ cmake ..
 $ make
-$ ./dd_example
-Bell state:
 
-00: 0.707107+0i
-01: 0+0i
-10: 0+0i
-11: 0.707107+0i
+![image](https://github.com/amadogabriel/asti_dd_package/assets/75212399/dd90a8a5-a703-48b4-9756-11882a06cb7f)
 
-
-GHZ cirtcuit (10qbts):
-
-0000000000: 0.707107+0i
-1111111111: 0.707107+0i
-
-3-qubit Quantum Fourier Transform
-
-000: 0.353553+0i
-001: 0.353553+0i
-010: 0.353553+0i
-011: 0.353553+0i
-100: 0.353553+0i
-101: 0.353553+0i
-110: 0.353553+0i
-111: 0.353553+0i
-```
 
 ### Building on Windows
 ```
